@@ -1,8 +1,6 @@
 -- Create trigger if it does not exist
-CREATE TRIGGER decrease_quantity AFTER INSERT ON orders
-FOR EACH ROW
-BEGIN
-    UPDATE items
-    SET quantity = quantity - NEW.number
-    WHERE name = NEW.item_name;
-END;
+
+CREATE TRIGGER `decrease_order` AFTER INSERT
+ON `orders` FOR EACH ROW UPDATE items
+SET quantity = quantity - NEW.number
+WHERE name = New.item_name;
