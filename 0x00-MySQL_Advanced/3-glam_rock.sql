@@ -1,4 +1,4 @@
--- Calculate lifespan and list bands with Glam rock as their main style, ranked by longevity
+-- Calculate lifespan and list bands with Glam rock
 
 SELECT  band_name,(ifnull(split,2020) - ifnull(formed,0)) lifespan
 FROM metal_bands
