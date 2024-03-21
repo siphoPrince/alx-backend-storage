@@ -1,4 +1,5 @@
 --select from dump file
+
 SELECT
   origin,
   SUM(fans) nb_fans
