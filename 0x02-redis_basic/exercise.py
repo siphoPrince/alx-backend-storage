@@ -8,6 +8,24 @@ from typing import Callable, Union
 from functools import wraps
 
 
+def call_history(method: Callable) -> Callable:
+    """ Stores history of inputs and outputs for a particular function
+    """
+    qualified_name = method.__qualname__
+
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        """ Add call_history params to one list in Redis
+            and store its ouput in anoter list
+        """
+        self._redis.rpush(qualified_name + ':inputs', str(args))
+        self._redis.rpush(
+            qualified_name + ':outputs',
+            method(self, *args, **kwargs)
+        )
+        return method(self, *args, **kwargs)
+    return wrapper
+
 class Cache:
     """case class"""
     def __init__(self):
