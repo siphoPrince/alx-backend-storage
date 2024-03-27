@@ -33,16 +33,21 @@ class Cache:
     def get_int(self, key: str) -> Union[int, bytes]:
         return self.get(key, fn=int)
 
-    @staticmethod
     def count_calls(method: Callable) -> Callable:
-        @wraps(method)
-        def wrapper(self, *args, **kwargs):
-            key = method.__qualname__
-            self._redis.incr(key)
-            return method(self, *args, **kwargs)
-        return wrapper
+    """ Counts how many times methods of Cache class are called
+    """
+    method_name = method.__qualname__
 
-    @staticmethod
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        """ Increment method call number
+        """
+        self._redis.incr(method_name)
+        return method(self, *args, **kwargs)
+
+    return wrapper
+
+    @staticmethodi
     def call_history(method: Callable) -> Callable:
         @wraps(method)
         def wrapper(self, *args, **kwargs):
