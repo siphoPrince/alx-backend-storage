@@ -9,14 +9,12 @@ from functools import wraps
 
 
 def count_calls(method: Callable) -> Callable:
-    """ Counts how many times methods of Cache class are called
-    """
+    """ Counts function"""
     method_name = method.__qualname__
 
     @wraps(method)
     def wrapper(self, *args, **kwargs):
-        """ Increment method call number
-        """
+        """ Increment numbers"""
         self._redis.incr(method_name)
         return method(self, *args, **kwargs)
 
@@ -24,15 +22,12 @@ def count_calls(method: Callable) -> Callable:
 
 
 def call_history(method: Callable) -> Callable:
-    """ Stores history of inputs and outputs for a particular function
-    """
+    """call for a particular function"""
     qualified_name = method.__qualname__
 
     @wraps(method)
     def wrapper(self, *args, **kwargs):
-        """ Add call_history params to one list in Redis
-            and store its ouput in anoter list
-        """
+        """ Add call_history"""
         self._redis.rpush(qualified_name + ':inputs', str(args))
         self._redis.rpush(
             qualified_name + ':outputs',
@@ -43,39 +38,33 @@ def call_history(method: Callable) -> Callable:
 
 
 class Cache:
-    """ Cache class stores instance of the Redic client
-    """
+    """ main class """
 
     def __init__(self):
-        """ Initalizee for Cache class
-        """
+        """ Init"""
         self._redis = redis.Redis()
         self._redis.flushdb()
 
     @call_history
     @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
-        """ Generates a random uuid
-        """
+        """ store uuid"""
         unique_id = str(uuid4)
         self._redis.set(unique_id, data)
         return unique_id
 
     def get(self, key: str, fn: Optional[Callable]
             = None) -> Union[str, bytes, int, float]:
-        """ Converts data back to desired format
-        """
+        """ get for task 0"""
         data = self._redis.get(key)
         if fn:
             data = fn(data)
         return data
 
     def get_str(self, key: str) -> Union[str, bytes, int, float]:
-        """ Converts data back to desired string format
-        """
+        """ Calls str"""
         return self.get(key, str)
 
     def get_int(self, key: str) -> Union[str, bytes, int, float]:
-        """ Converts data back to desired int format
-        """
+        """ calls int """
         return self.get(key, int)
