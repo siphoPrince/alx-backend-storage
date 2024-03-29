@@ -4,13 +4,28 @@
 
 import redis
 import uuid
-from typing import Union
+from typing import Unioni, Callable
 
 class Cache:
     """main class"""
     def __init__(self):
         self._redis = redis.Redis()
         self._redis.flushdb()
+
+    @functools.wraps
+    def count_calls(method: Callable):
+        @functools.wraps(method)
+        def wrapper(self, *args, **kwargs):
+            key = method.__qualname__
+            self._redis.incr(key)
+            return method(self, *args, **kwargs)
+        return wrapper
+
+    @count_calls
+    def store(self, data):
+        key = str(uuid.uuid4())
+        self._redis.set(key, data)
+        return key
 
     def store(self, data: Union[str, bytes, int, float]) -> str:
         key = str(uuid.uuid4())
